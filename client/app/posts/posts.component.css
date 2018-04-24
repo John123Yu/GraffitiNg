@@ -2,3 +2,31 @@
 .table th {
   width: 25%;
 }
+table {
+	text-align: center;
+}
+#canvas {
+  background: oldlace;
+}
+#ui {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+.swatch {
+  pointer-events: all;
+}
+.swatch.active {
+  stroke-width: 2px;
+  stroke: black;
+}
+.swatch {
+  cursor: pointer;
+}
+.line {
+  fill: none;
+  stroke-width: 2px;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
