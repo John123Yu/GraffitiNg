@@ -34,7 +34,6 @@ export class PostsComponent implements OnInit {
   private active_line;
   private canvas;
   private drag;
-  private drawing_data;
   private lines_layer;
   private palette;
   private swatches;
@@ -47,39 +46,36 @@ export class PostsComponent implements OnInit {
   private isEditing = false;
 
   private drawing_data = {
-      lines: [
-        {
-          color: "#1b9e77",
-          points: [[451, 448], [447, 447], [442, 445], [430, 440], [417, 433], [411, 429], [405, 424], [398, 420], [385, 410], [372, 398], [366, 392], [360, 385], [354, 378], [348, 370], [343, 362], [338, 354], [333, 346], [329, 337], [326, 328], [322, 318], [319, 309], [316, 299], [314, 289], [313, 279], [312, 269], [312, 259], [314, 239], [316, 228], [317, 218], [319, 209], [322, 199], [326, 190], [330, 181], [334, 172], [339, 164], [344, 156], [350, 149], [355, 143], [362, 136], [368, 131], [375, 125], [383, 120], [390, 115], [398, 111], [406, 107], [423, 99], [431, 96], [440, 93], [449, 90], [458, 87], [467, 86], [495, 83], [505, 83], [514, 83], [524, 84], [534, 85], [543, 87], [552, 89], [566, 95], [578, 101], [589, 106], [598, 112], [607, 118], [615, 125], [622, 131], [629, 138], [635, 146], [641, 153], [652, 169], [661, 185], [665, 194], [671, 210], [674, 218], [676, 226], [677, 234], [678, 241], [679, 249], [678, 264], [677, 271], [676, 279], [674, 286], [671, 293], [664, 307], [660, 313], [655, 320], [650, 326], [638, 338], [631, 344], [624, 349], [609, 359], [593, 367], [585, 370], [567, 375], [558, 378], [548, 379], [529, 382], [511, 383], [493, 382], [484, 381], [475, 379], [450, 371], [443, 367], [435, 363], [428, 358], [422, 353], [416, 347], [406, 335], [398, 321], [395, 314], [393, 307], [389, 292], [388, 277], [389, 261], [393, 239], [398, 226], [408, 207], [412, 202], [417, 197], [422, 192], [427, 188], [438, 181], [449, 176], [462, 172], [475, 169], [494, 168], [508, 168], [521, 170], [539, 176], [551, 182], [556, 185], [561, 188], [570, 196], [576, 205], [583, 220], [585, 224], [586, 231], [587, 243], [587, 255], [586, 260], [583, 270], [581, 275], [578, 279], [573, 285], [567, 290], [557, 297], [546, 302], [530, 307], [519, 309], [507, 309], [491, 307], [480, 304], [471, 299], [467, 296], [463, 294], [456, 287], [449, 276], [448, 272], [447, 268], [446, 260], [447, 252], [452, 240], [456, 232], [462, 226], [469, 220], [476, 217], [485, 214], [498, 211], [506, 211], [514, 213], [525, 218], [531, 222], [534, 225], [536, 227], [540, 233], [543, 239], [544, 245], [544, 253], [542, 257], [537, 263], [535, 265], [529, 269], [524, 271], [521, 271], [519, 271], [517, 272], [511, 271], [507, 270], [502, 267], [501, 265], [497, 261], [496, 259], [494, 257], [491, 245], [492, 242], [493, 239], [497, 237]]
-        }
-      ]
+      lines: []
     };
-  private render_line = d3Shape.line().curve(d3.curveLinear).x( function(d) {
+  private render_line = d3Shape.line().x( function(d) {
     return d[0];
   }).y( function(d) {
     return d[1];
-  })
+  }).curve(d3.curveMonotoneX);
   //.curve(d3.curveLinear)
 
   private redraw = (specific_line) => {
     var lines;
     lines = this.lines_layer.selectAll('.line').data(this.drawing_data.lines);
     lines.enter().append('path').attr("class", 'line')
-    .attr("stroke", (d) =>  d.color)
+    //.attr("stroke", (d) =>  d.color)
     .each( function(d) {
-      console.log(d3.select(this)['_groups'][0][0])
-      return d.elem = d3.select(this)['_groups'][0][0];
-    });
-    if (this.specific_line != null) {
-      this.specific_line.elem.attr({
-        d: (d) => {
-          return this.render_line(d.points);
-        }
+      //console.log(d3.select(this)['_groups'][0][0])
+      //console.log(d3.select(this));
+      return d.elem = d3.select(this);
+    })
+    .attr("d", this.render_line);
+    if (specific_line != null) {
+      console.log(specific_line)
+      //console.log(specific_line.elem['_groups'][0][0])
+      specific_line.elem.attr("d", (d) => {
+        return this.render_line(d.points);
       });
     } else {
       lines.attr("d", (d) => {
-          return this.render_line(d.points);
-        });
+        return this.render_line(d.points);
+      });
     }
     return lines.exit().remove();
   };
@@ -98,7 +94,7 @@ export class PostsComponent implements OnInit {
     this.active_color = "#333333";
 
     this.initSvg();
-    this.redraw();
+    this.redraw(null);
     this.getPosts();
     this.addPostForm = this.formBuilder.group({
       message: this.message
@@ -119,7 +115,7 @@ export class PostsComponent implements OnInit {
       .attr("transform", 'translate(940,20)')
       .on('click', () => {
         this.drawing_data.lines = [];
-        return this.redraw();
+        return this.redraw(null);
       });
 
     this.swatches = this.palette.selectAll('swatch').data(["#333333", "#ffffff", "#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e", "#e6ab02", "#a6761d", "#666666"]);
@@ -145,11 +141,12 @@ export class PostsComponent implements OnInit {
 //        return d3.select(this).classed('active', true);
       })
       .on('click', function() {
-        console.log(d3.select(this)['_groups']);
+       // console.log(d3.select(this)['_groups']);
         return d3.select(this).classed('active', true);
       })
 
-    this.swatches.each( (d) => {
+    this.swatches.each( function(d) {
+      //console.log(this)
       if (d === this.active_color) {
         return d3.select(this).classed('active', true);
       }
@@ -167,6 +164,7 @@ export class PostsComponent implements OnInit {
       //console.log(this.canvas['_groups'][0][0])
       //console.log(d3.mouse(this.canvas['_groups'][0][0]))
       this.active_line.points.push(d3.mouse(this.canvas['_groups'][0][0]));
+      //console.log(this.active_line)
       return this.redraw(this.active_line);
     });
     this.drag.on('end', () => {
@@ -180,7 +178,7 @@ export class PostsComponent implements OnInit {
   }
 
   private drawLine() {
-    this.redraw();
+    this.redraw(null);
   }
 
   getPosts() {
